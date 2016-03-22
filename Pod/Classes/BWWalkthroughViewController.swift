@@ -38,7 +38,7 @@ Probably the Walkthrough is presented by this delegate.
     @objc optional func walkthroughNextButtonPressed()               //
     @objc optional func walkthroughPrevButtonPressed()               //
     @objc optional func walkthroughPageDidChange(pageNumber:Int)     // Called when current page changes
-
+    @objc optional func walkthroughConfirmButtonPressed()
 }
 
 /** 
@@ -67,7 +67,7 @@ At the moment it's only used to perform custom animations on didScroll.
     @IBOutlet public var nextButton:UIButton?
     @IBOutlet public var prevButton:UIButton?
     @IBOutlet public var closeButton:UIButton?
-    
+    @IBOutlet public var confirmButton:UIButton?
     public var currentPage:Int{    // The index of the current page (readonly)
         get{
             let page = Int((scrollview.contentOffset.x / view.bounds.size.width))
@@ -144,7 +144,13 @@ At the moment it's only used to perform custom animations on didScroll.
         pageControl?.numberOfPages = controllers.count
         pageControl?.currentPage = 0
     }
-    
+    public override func viewDidDisappear(animated: Bool) {
+        super.viewDidDisappear(true)
+        for controller in controllers {
+            controller.view.removeFromSuperview()
+        }
+        controllers.removeAll()
+    }
     
     // MARK: - Internal methods -
     
@@ -173,7 +179,9 @@ At the moment it's only used to perform custom animations on didScroll.
     @IBAction public func close(sender: AnyObject){
         delegate?.walkthroughCloseButtonPressed?()
     }
-    
+    @IBAction public func confirm(sender : AnyObject){
+        delegate?.walkthroughConfirmButtonPressed?()
+    }
     func pageControlDidTouch(){
 
         if let pc = pageControl{
@@ -307,5 +315,12 @@ At the moment it's only used to perform custom animations on didScroll.
     override public func viewWillTransitionToSize(size: CGSize, withTransitionCoordinator coordinator: UIViewControllerTransitionCoordinator) {
         print("SIZE")
     }
-    
+}
+extension BWWalkthroughViewController {
+    public func removeControllers(){
+        for controller in controllers {
+            controller.view.removeFromSuperview()
+        }
+        controllers.removeAll()
+    }
 }
